@@ -23,7 +23,7 @@ class ACO(object):
         # 存储存储每个温度下的最终路径，画出收敛图
         self.iter_x = []
         self.iter_y = []
-        # self.greedy_init(self.dis_mat,100,num_city)
+        self.greedy_init(self.dis_mat,100,num_city)
     def greedy_init(self, dis_mat, num_total, num_city):
         start_index = 0
         result = []
@@ -54,15 +54,8 @@ class ACO(object):
         pathlens = self.compute_paths(result)
         sortindex = np.argsort(pathlens)
         index = sortindex[0]
-        result = result[index]
-        for i in range(len(result)-1):
-            s = result[i]
-            s2 = result[i+1]
-            self.Tau[s][s2]=1
-        self.Tau[result[-1]][result[0]] = 1
-        # for i in range(num_city):
-        #     for j in range(num_city):
-        # return result
+        
+        self.Tau = (1 - np.eye(num_city)) *(1/pathlens[index])
 
     # 轮盘赌选择
     def rand_choose(self, p):
@@ -140,6 +133,9 @@ class ACO(object):
             a = self.Table[i][0]
             b = self.Table[i][-1]
             delta_tau[a][b] = delta_tau[a][b] + self.Q / paths[i]
+        
+        delta_tau += delta_tau.T
+
         self.Tau = (1 - self.rho) * self.Tau + delta_tau
 
     def aco(self):
